@@ -69,6 +69,14 @@ namespace Promitor.Scraper.Host.Validation.MetricDefinitions
                     var azureStorageQueueMetricValidator = new StorageQueueMetricValidator();
                     metricDefinitionValidationErrors = azureStorageQueueMetricValidator.Validate(metric as StorageQueueMetricDefinition);
                     break;
+                case ResourceType.ContainerInstance:
+                    var containerInstanceMetricValidator = new ContainerInstanceMetricValidator();
+                    metricDefinitionValidationErrors = containerInstanceMetricValidator.Validate(metric as ContainerInstanceMetricDefinition);
+                    break;
+                case ResourceType.CosmosDb:
+                    var cosmosDbMetricValidator = new CosmosDbMetricValidator();
+                    metricDefinitionValidationErrors = cosmosDbMetricValidator.Validate(metric as CosmosDbMetricDefinition);
+                    break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(metric), metric.ResourceType, $"No validation rules are defined for metric type '{metric.ResourceType}'");
             }

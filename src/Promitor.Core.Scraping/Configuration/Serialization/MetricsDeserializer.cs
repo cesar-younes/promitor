@@ -31,6 +31,12 @@ namespace Promitor.Core.Scraping.Configuration.Serialization
                 case ResourceType.StorageQueue:
                     metricDefinition = DeserializeAzureStorageQueue(node);
                     break;
+                case ResourceType.ContainerInstance:
+                    metricDefinition = DeserializeAzureContainerInstance(node);
+                    break;
+                case ResourceType.CosmosDb:
+                    metricDefinition = DeserializeCosmosDb(node);
+                    break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(resourceType), resourceType, $"No deserialization was found for {resourceType}");
             }
@@ -67,6 +73,16 @@ namespace Promitor.Core.Scraping.Configuration.Serialization
             return metricDefinition;
         }
 
+        private MetricDefinition DeserializeAzureContainerInstance(YamlMappingNode metricNode)
+        {
+            var metricDefinition = DeserializeMetricDefinition<ContainerInstanceMetricDefinition>(metricNode);
+
+            var containerGroup = metricNode.Children[new YamlScalarNode("containerGroup")];
+            metricDefinition.ContainerGroup = containerGroup?.ToString();
+
+            return metricDefinition;
+        }
+
         private MetricDefinition DeserializeAzureStorageQueue(YamlMappingNode metricNode)
         {
             var metricDefinition = DeserializeMetricDefinition<StorageQueueMetricDefinition>(metricNode);
@@ -77,6 +93,18 @@ namespace Promitor.Core.Scraping.Configuration.Serialization
             metricDefinition.AccountName = accountName?.ToString();
             metricDefinition.QueueName = queueName?.ToString();
             metricDefinition.SasToken = sasToken?.ToString();
+
+            return metricDefinition;
+        }
+
+        private MetricDefinition DeserializeCosmosDb(YamlMappingNode metricNode)
+        {
+            //"id": "/subscriptions/a875de9f-e9ba-48f8-ba69-eb8784486ea7/resourceGroups/aks-rg-cesar9132/providers/Microsoft.DocumentDB/databaseAccounts/cosmoscesar9132",
+            var metricDefinition = DeserializeMetricDefinition<CosmosDbMetricDefinition>(metricNode);
+            var dbName = metricNode.Children[new YamlScalarNode("dbName")];
+            var kind = metricNode.Children[new YamlScalarNode("kind")];
+            metricDefinition.DbName = dbName?.ToString();
+            metricDefinition.Kind = kind?.ToString();
 
             return metricDefinition;
         }
